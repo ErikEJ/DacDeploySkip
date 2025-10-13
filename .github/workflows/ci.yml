@@ -1,0 +1,46 @@
+name: .NET
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x'        
+
+    - name: Restore dependencies
+      run: dotnet restore
+  
+    - name: Build solution
+      run: dotnet build --no-restore --configuration Release
+
+    # - name: NuGet login
+    #   if: startsWith(github.ref, 'refs/heads/main')
+    #   uses: NuGet/login@v1
+    #   id: login
+    #   with:
+    #       user: ErikEJ
+
+    # - name: Publish NuGet
+    #   if: startsWith(github.ref, 'refs/heads/main')
+    #   run: dotnet nuget push **\ErikEJ.*.nupkg --source 'https://api.nuget.org/v3/index.json' --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate
