@@ -16,15 +16,15 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '8.0.x'
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v4
+      uses: actions/setup-dotnet@v5
       with:
         dotnet-version: '10.0.x'        
 
@@ -34,13 +34,13 @@ jobs:
     - name: Build solution
       run: dotnet build --no-restore --configuration Release
 
-    # - name: NuGet login
-    #   if: startsWith(github.ref, 'refs/heads/main')
-    #   uses: NuGet/login@v1
-    #   id: login
-    #   with:
-    #       user: ErikEJ
+    - name: NuGet login
+      if: startsWith(github.ref, 'refs/heads/main')
+      uses: NuGet/login@v1
+      id: login
+      with:
+          user: ErikEJ
 
-    # - name: Publish NuGet
-    #   if: startsWith(github.ref, 'refs/heads/main')
-    #   run: dotnet nuget push **\ErikEJ.*.nupkg --source 'https://api.nuget.org/v3/index.json' --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate
+    - name: Publish NuGet
+      if: startsWith(github.ref, 'refs/heads/main')
+      run: dotnet nuget push **\ErikEJ.*.nupkg --source 'https://api.nuget.org/v3/index.json' --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --skip-duplicate

@@ -1,3 +1,7 @@
 <Solution>
+  <Folder Name="/Build/">
+    <File Path=".github/workflows/ci.yml" />
+    <File Path="readme.md" />
+  </Folder>
   <Project Path="src/DacDeploySkip/DacDeploySkip.csproj" />
 </Solution>

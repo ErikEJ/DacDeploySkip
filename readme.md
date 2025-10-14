@@ -29,29 +29,39 @@ This command will add metadata to the target database to register the .dacpac as
 ### Usage in Azure DevOps pipeline
 
 ```yaml
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  buildConfiguration: 'Release'
 
 steps:
+    - script: dotnet build --configuration $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+      displayName: 'dotnet build $(buildConfiguration)'
 
-- script: dotnet tool install -g Microsoft.SqlPackage
-  displayName: Install sqlpackage CLI
+    - script: dotnet tool install -g Microsoft.SqlPackage
+      displayName: Install sqlpackage CLI
 
-- script: dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
-  displayName: Install DacDeploySkip CLI
+    - script: dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
+      displayName: Install DacDeploySkip CLI
 
-- script: |
-    dacdeployskip check $dacpacPath $connectionString
-  continueOnError: true
-  displayName: check if .dacpac has been deployed
+    - script: |
+        dacdeployskip check $dacpacPath $connectionString
+      continueOnError: true
+      displayName: check if .dacpac has been deployed
 
-- script: |
-    sqlpackage /Action:Publisk /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)"
-    echo "##vso[task.setvariable variable=markAsDeployed]Yes"
-  condtions: failed()
-  displayName: Publish .dacpac if metadata check failed
+    - script: |
+        sqlpackage /Action:Publish /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)"
+        echo "##vso[task.setvariable variable=markAsDeployed]Yes"
+      condtions: failed()
+      displayName: Publish .dacpac if metadata check failed
 
-- script: |
-    dacdeployskip mark "$(dacpacPath)" "$(connectionString)"
-  displayName: Set metadata
-  condition: and(succeeded(), eq(variables.markAsDeployed, 'Yes')
+    - script: |
+        dacdeployskip mark "$(dacpacPath)" "$(connectionString)"
+      displayName: Set metadata
+      condition: and(succeeded(), eq(variables.markAsDeployed, 'Yes')
 
 ```

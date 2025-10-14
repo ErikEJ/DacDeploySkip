@@ -56,7 +56,7 @@ internal class DacpacDeploySkipper
         using (var connection = new SqlConnection(targetConnectionString))
         {
             await connection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken);
-                    
+
             await UpdateExtendedPropertyAsync(connection, dacpacId, dacpacChecksum, cancellationToken);
 
             Console.WriteLine($"The .dacpac with checksum {dacpacChecksum} has been registered in database {targetDatabaseName}.");
