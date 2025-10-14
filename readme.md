@@ -28,6 +28,8 @@ This command will add metadata to the target database to register the .dacpac as
 
 ### Sample usage in Azure DevOps pipeline
 
+Notice the use of the additional parameter `/p:DropExtendedPropertiesNotInSource=False` to avoid dropping the metadata added by this tool.
+
 ```yml
 trigger:
 - main
@@ -43,10 +45,10 @@ variables:
 steps:
 
   - script: dotnet tool install -g Microsoft.SqlPackage
-    displayName: Install sqlpackage CLI
+    displayName: Install latest sqlpackage CLI
 
   - script: dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
-    displayName: Install DacDeploySkip CLI
+    displayName: Install latest dacdeployskip CLI
 
   - script: dotnet build --configuration $(buildConfiguration)
     displayName: 'dotnet build $(buildConfiguration)'
