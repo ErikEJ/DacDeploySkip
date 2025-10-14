@@ -26,42 +26,38 @@ dacdeployskip mark "<path to .dacpac>" "SQL Server connection string"
 
 This command will add metadata to the target database to register the .dacpac as deployed.
 
-### Usage in Azure DevOps pipeline
+### Sample usage in Azure DevOps pipeline
 
-```yaml
+```yml
 trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  name: selfhosted
 
 variables:
   buildConfiguration: 'Release'
+  connectionString: 'Data Source=(localdb)\mssqllocaldb;Initial Catalog=TestBed;Integrated Security=true;Encrypt=false'
+  dacpacPath: '$(Build.SourcesDirectory)\Database\bin\Release\net8.0\Database.dacpac'
 
 steps:
-    - script: dotnet build --configuration $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
-      displayName: 'dotnet build $(buildConfiguration)'
 
-    - script: dotnet tool install -g Microsoft.SqlPackage
-      displayName: Install sqlpackage CLI
+  - script: dotnet tool install -g Microsoft.SqlPackage
+    displayName: Install sqlpackage CLI
 
-    - script: dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
-      displayName: Install DacDeploySkip CLI
+  - script: dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
+    displayName: Install DacDeploySkip CLI
 
-    - script: |
-        dacdeployskip check $dacpacPath $connectionString
-      continueOnError: true
-      displayName: check if .dacpac has been deployed
+  - script: dotnet build --configuration $(buildConfiguration)
+    displayName: 'dotnet build $(buildConfiguration)'
 
-    - script: |
-        sqlpackage /Action:Publish /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)"
-        echo "##vso[task.setvariable variable=markAsDeployed]Yes"
-      condtions: failed()
-      displayName: Publish .dacpac if metadata check failed
-
-    - script: |
-        dacdeployskip mark "$(dacpacPath)" "$(connectionString)"
-      displayName: Set metadata
-      condition: and(succeeded(), eq(variables.markAsDeployed, 'Yes')
+  - powershell: |
+      dacdeployskip check "$(dacpacPath)" "$(connectionString)"
+      if (!$?)
+      {
+         sqlpackage /Action:Publish /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)" /p:DropExtendedPropertiesNotInSource=False
+         dacdeployskip mark "$(dacpacPath)" "$(connectionString)"
+      }
+    displayName: deploy dacpac if needed only
 
 ```
