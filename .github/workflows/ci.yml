@@ -9,8 +9,14 @@ on:
       - main
   workflow_dispatch:
 
+permissions:
+  id-token: write   # required for GitHub OIDC
+
 jobs:
   build:
+
+    permissions:
+      id-token: write  # enable GitHub OIDC token issuance for this job
 
     runs-on: ubuntu-latest
 
