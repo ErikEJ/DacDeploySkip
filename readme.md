@@ -1,6 +1,8 @@
 # Dac Deploy Skip
 
-Tool to determine if a deployment of a specific .dacpac file is required based on metadata present in the target database.
+Tool to determine if a deployment of a specific .dacpac file is required based on metadata present in the target database. 
+
+This can reduce your .dacpac deployment times significantly in scenarios you deploy the same .dacpac multiple times, e.g. in CI/CD pipelines.
 
 ## Getting started
 

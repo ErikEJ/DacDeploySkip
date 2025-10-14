@@ -31,11 +31,11 @@ internal class DacpacChecksumService
 
             if (deployed)
             {
-                Console.WriteLine($"The .dacpac with checksum {dacpacChecksum} has already been deployed to database {targetDatabaseName}.");
+                Console.WriteLine($"The .dacpac with id {dacpacId} and checksum {dacpacChecksum} has already been deployed to database {targetDatabaseName}.");
                 return true;
             }
 
-            Console.WriteLine($"The .dacpac with checksum {dacpacChecksum} has not been deployed to database {targetDatabaseName}.");
+            Console.WriteLine($"The .dacpac with id {dacpacId} and checksum {dacpacChecksum} has not been deployed to database {targetDatabaseName}.");
             return false;
         }
     }
@@ -54,7 +54,7 @@ internal class DacpacChecksumService
 
             await UpdateExtendedPropertyAsync(connection, dacpacId, dacpacChecksum, cancellationToken);
 
-            Console.WriteLine($"The .dacpac with checksum {dacpacChecksum} has been registered in database {targetDatabaseName}.");
+            Console.WriteLine($"The .dacpac with id {dacpacId} and checksum {dacpacChecksum} has been registered in database {targetDatabaseName}.");
         }
     }
 
