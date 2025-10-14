@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DacDeploySkip": {
+      "commandName": "Project",
+      "commandLineArgs": "mark \"C:\\dev\\AzureDevOps\\TestBed\\Database\\bin\\Release\\net8.0\\Database1.dacpac\" \"Data Source=(localdb)\\mssqllocaldb;Initial Catalog=TestBed;Integrated Security=true;Encrypt=false\"        \r\n"
+    }
+  }
+}

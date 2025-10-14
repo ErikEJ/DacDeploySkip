@@ -4,33 +4,28 @@ using System.Security.Cryptography;
 
 namespace DacDeploySkip;
 
-internal class DacpacDeploySkipper
+internal class DacpacChecksumService
 {
     public async Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, CancellationToken cancellationToken = default)
     {
         var targetDatabaseName = GetDatabaseName(targetConnectionString);
-
-        var dacpacId = GetStringChecksum(dacpacPath);
-
-        var dacpacChecksum = await GetChecksumAsync(dacpacPath);
         
-        using (var testConnection = new SqlConnection(targetConnectionString))
+        using (var connection = new SqlConnection(targetConnectionString))
         {
             try
             {
                 // Try to connect to the target database to see it exists and fail fast if it does not.
-                await testConnection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken);
+                await connection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken);
             }
             catch (Exception ex) when (ex is InvalidOperationException || ex is SqlException)
             {
                 Console.WriteLine($"Target database {targetDatabaseName} is not available.");
                 return false;
             }
-        }
-        
-        using (var connection = new SqlConnection(targetConnectionString))
-        {
-            await connection.OpenAsync(SqlConnectionOverrides.OpenWithoutRetry, cancellationToken);
+
+            var dacpacId = GetStringChecksum(dacpacPath);
+
+            var dacpacChecksum = await GetChecksumAsync(dacpacPath);
 
             var deployed = await CheckExtendedPropertyAsync(connection, dacpacId, dacpacChecksum, cancellationToken);
 
@@ -71,9 +66,24 @@ internal class DacpacDeploySkipper
 
     private static async Task<string> GetChecksumAsync(string file)
     {
-        using var stream = File.OpenRead(file);
+        var output = Path.Join(Path.GetTempPath(), Path.GetRandomFileName());
+
+        System.IO.Compression.ZipFile.ExtractToDirectory(file, output);
+
+        using var stream = File.OpenRead(Path.Join(output, "model.xml"));
         using var sha = SHA256.Create();
         var checksum = await sha.ComputeHashAsync(stream);
+
+        // Clean up the extracted files
+        try
+        {
+            Directory.Delete(output, true);
+        }
+        catch
+        {
+            // Ignore any errors during cleanup
+        }
+
         return BitConverter.ToString(checksum).Replace("-", string.Empty);
     }
 

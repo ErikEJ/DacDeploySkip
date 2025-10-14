@@ -2,7 +2,7 @@
 // Commands: dacdeployskip mark "dacpacPath" "connectionString"
 using DacDeploySkip;
 
-var skipper = new DacpacDeploySkipper();
+var skipper = new DacpacChecksumService();
 
 if (args.Length == 3 && args[0] == "check")
 {
