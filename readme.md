@@ -64,4 +64,4 @@ steps:
 
 ```
 
-You can find a complete example [here](/samples).
+You can find a complete example [here](/sample).
