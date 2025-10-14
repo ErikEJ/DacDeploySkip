@@ -1,36 +1,3 @@
-# Dac Deploy Skip
-
-Tool to determine if a deployment of a specific .dacpac file is required based on metadata present in the target database.
-
-## Getting started
-
-The tool runs on any system with the .NET 8 or .NET 10 runtime installed. 
-
-### Installing the tool
-
-```bash
-dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
-```
-
-### Basic usage
-
-```bash
-dacdeployskip check "<path to .dacpac>" "SQL Server connection string" 
-```
-
-This command will return 0 if the .dacpac has already been deployed, otherwise 1.
-
-```bash
-dacdeployskip mark "<path to .dacpac>" "SQL Server connection string" 
-```
-
-This command will add metadata to the target database to register the .dacpac as deployed.
-
-### Sample usage in Azure DevOps pipeline
-
-Notice the use of the additional parameter `/p:DropExtendedPropertiesNotInSource=False` to avoid dropping the metadata added by this tool.
-
-```yml
 trigger:
 - main
 
@@ -61,7 +28,3 @@ steps:
          dacdeployskip mark "$(dacpacPath)" "$(connectionString)"
       }
     displayName: deploy dacpac if needed only
-
-```
-
-You can find a complete example [here](/samples).

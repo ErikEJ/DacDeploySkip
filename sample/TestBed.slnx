@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/DevOps/">
+    <File Path="azure-pipelines.yml" />
+  </Folder>
+  <Project Path="Database/Database.csproj" />
+</Solution>
