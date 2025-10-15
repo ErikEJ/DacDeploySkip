@@ -4,16 +4,28 @@ using DacDeploySkip;
 
 var skipper = new DacpacChecksumService();
 
-if (args.Length == 3 && args[0] == "check")
+if ((args.Length == 3 || args.Length == 4) && args[0] == "check")
 {
-    var deployed = await skipper.CheckIfDeployedAsync(args[1], args[2]);
+    bool useFileName = false;
+    if (args.Length == 4 && args[3].Equals("-namekey", StringComparison.OrdinalIgnoreCase))
+    {
+        useFileName = true;
+    }
+
+    var deployed = await skipper.CheckIfDeployedAsync(args[1], args[2], useFileName);
 
     return deployed ? 0 : 1;
 }
 
-if (args.Length == 3 && args[0] == "mark")
+if ((args.Length == 3 || args.Length == 4) && args[0] == "mark")
 {
-    await skipper.SetChecksumAsync(args[1], args[2]);
+    bool useFileName = false;
+    if (args.Length == 4 && args[3].Equals("-namekey", StringComparison.OrdinalIgnoreCase))
+    {
+        useFileName = true;
+    }
+
+    await skipper.SetChecksumAsync(args[1], args[2], useFileName);
     return 0;
 }
 

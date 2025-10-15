@@ -6,7 +6,7 @@ namespace DacDeploySkip;
 
 internal class DacpacChecksumService
 {
-    public async Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, CancellationToken cancellationToken = default)
+    public async Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, bool useFileName, CancellationToken cancellationToken = default)
     {
         var targetDatabaseName = GetDatabaseName(targetConnectionString);
         
@@ -23,7 +23,7 @@ internal class DacpacChecksumService
                 return false;
             }
 
-            var dacpacId = GetStringChecksum(dacpacPath);
+            var dacpacId = GetStringChecksum(dacpacPath, useFileName);
 
             var dacpacChecksum = await GetChecksumAsync(dacpacPath);
 
@@ -31,20 +31,20 @@ internal class DacpacChecksumService
 
             if (deployed)
             {
-                Console.WriteLine($"The .dacpac with id {dacpacId} and checksum {dacpacChecksum} has already been deployed to database {targetDatabaseName}.");
+                Console.WriteLine($"The .dacpac with id '{dacpacId}' and checksum {dacpacChecksum} has already been deployed to database {targetDatabaseName}.");
                 return true;
             }
 
-            Console.WriteLine($"The .dacpac with id {dacpacId} and checksum {dacpacChecksum} has not been deployed to database {targetDatabaseName}.");
+            Console.WriteLine($"The .dacpac with id '{dacpacId}' and checksum {dacpacChecksum} has not been deployed to database {targetDatabaseName}.");
             return false;
         }
     }
 
-    public async Task SetChecksumAsync(string dacpacPath, string targetConnectionString,  CancellationToken cancellationToken = default)
+    public async Task SetChecksumAsync(string dacpacPath, string targetConnectionString,  bool useFileName, CancellationToken cancellationToken = default)
     {
         var targetDatabaseName = GetDatabaseName(targetConnectionString);
 
-        var dacpacId = GetStringChecksum(dacpacPath);
+        var dacpacId = GetStringChecksum(dacpacPath, useFileName);
 
         var dacpacChecksum = await GetChecksumAsync(dacpacPath);
         
@@ -54,7 +54,7 @@ internal class DacpacChecksumService
 
             await UpdateExtendedPropertyAsync(connection, dacpacId, dacpacChecksum, cancellationToken);
 
-            Console.WriteLine($"The .dacpac with id {dacpacId} and checksum {dacpacChecksum} has been registered in database {targetDatabaseName}.");
+            Console.WriteLine($"The .dacpac with id '{dacpacId}' and checksum {dacpacChecksum} has been registered in database {targetDatabaseName}.");
         }
     }
 
@@ -104,8 +104,24 @@ internal class DacpacChecksumService
         return BitConverter.ToString(checksum).Replace("-", string.Empty);
     }
 
-    private static string GetStringChecksum(string text)
+    private static string GetStringChecksum(string text, bool useFilename)
     {
+        if (useFilename) 
+        {
+            var result = Path.GetFileNameWithoutExtension(text);
+            if (string.IsNullOrWhiteSpace(result))
+            {
+                throw new ArgumentException("The provided path does not contain a valid filename.", nameof(text));
+            }
+
+            if (result.Length > 128)
+            {
+                throw new ArgumentException("The filename without extension must not exceed 128 characters.", nameof(text));
+            }
+
+            return result;
+        }
+
         var bytes = System.Text.Encoding.UTF8.GetBytes(text);
         using var sha = SHA256.Create();
         var checksum = sha.ComputeHash(bytes);

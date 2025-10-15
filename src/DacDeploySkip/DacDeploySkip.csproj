@@ -16,9 +16,9 @@
     <PackageId>ErikEJ.DacFX.DacDeploySkip</PackageId>
     <Description>Dacpac deployment skipper</Description>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <PackageVersion>1.0.5</PackageVersion>
-    <InformationalVersion>1.0.5</InformationalVersion>
-    <Version>1.0.5</Version>
+    <PackageVersion>1.0.6</PackageVersion>
+    <InformationalVersion>1.0.6</InformationalVersion>
+    <Version>1.0.6</Version>
     <RepositoryUrl>https://github.com/ErikEJ/DacDeploySkip</RepositoryUrl>
     <PackageProjectUrl>https://github.com/ErikEJ/DacDeploySkip</PackageProjectUrl>
     <Authors>ErikEJ</Authors>
