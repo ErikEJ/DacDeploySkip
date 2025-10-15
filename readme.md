@@ -23,7 +23,13 @@ dacdeployskip check "<path to .dacpac>" "SQL Server connection string"
 This command will return 0 if the .dacpac has already been deployed, otherwise 1.
 
 ```bash
-dacdeployskip mark "<path to .dacpac>" "SQL Server connection string" 
+dacdeployskip mark "<path to .dacpac>" "SQL Server connection string"
+```
+
+You can use the optional `-namekey` parameter to use the name of the .dacpac file instead of the full path as key.
+
+```bash
+dacdeployskip mark "<path to .dacpac>" "SQL Server connection string" -namekey
 ```
 
 This command will add metadata to the target database to register the .dacpac as deployed.
