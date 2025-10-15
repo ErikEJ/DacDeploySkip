@@ -89,7 +89,7 @@ internal class DacpacChecksumService
         }
 
         using var sha = SHA256.Create();
-        var checksum = await sha.ComputeHashAsync(new MemoryStream(bytes));
+        var checksum = sha.ComputeHash(bytes);
 
         // Clean up the extracted files
         try
