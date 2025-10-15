@@ -32,6 +32,12 @@ This command will add metadata to the target database to register the .dacpac as
 
 Notice the use of the additional parameter `/p:DropExtendedPropertiesNotInSource=False` to avoid dropping the metadata added by this tool.
 
+If you use a publish profile, you can add the same parameter there.
+
+```xml
+<DropExtendedPropertiesNotInSource>False</DropExtendedPropertiesNotInSource>
+```
+
 ```yml
 trigger:
 - main
