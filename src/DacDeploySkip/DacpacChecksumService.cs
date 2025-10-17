@@ -4,7 +4,10 @@ using System.Security.Cryptography;
 
 namespace DacDeploySkip;
 
-internal class DacpacChecksumService
+/// <summary>
+/// This class is for internal use only.
+/// </summary>
+public class DacpacChecksumService
 {
     public async Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, bool useFileName, CancellationToken cancellationToken = default)
     {
@@ -64,13 +67,18 @@ internal class DacpacChecksumService
         return builder.InitialCatalog;
     }
 
-    private static async Task<string> GetChecksumAsync(string file)
+    private async Task<string> GetChecksumAsync(string file)
     {
         var output = Path.Join(Path.GetTempPath(), Path.GetRandomFileName());
 
         System.IO.Compression.ZipFile.ExtractToDirectory(file, output);
 
-        var bytes = await File.ReadAllBytesAsync(Path.Join(output, "model.xml"));
+        var modelFile = Path.Join(output, "model.xml");
+
+        var rewriter = new XmlRewriter();
+        await rewriter.RewriteXmlMetadataAsync(modelFile);
+
+        var bytes = await File.ReadAllBytesAsync(modelFile);
 
         var predeployPath = Path.Join(output, "predeploy.sql");
         

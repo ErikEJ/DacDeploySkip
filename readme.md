@@ -79,3 +79,26 @@ steps:
 ```
 
 You can find a complete example [here](/sample).
+
+You can also use the tool to set a condition in your pipeline based on whether a deployment is needed or not. This can be useful if you use a task like `SqlAzureDacpacDeployment` or `SqlDacpacDeploymentOnMachineGroup`.
+
+```yaml
+- powershell: |
+
+    dacdeployskip check "$(dacpacPath)" "$(ConnectionString)"
+    if (!$?)
+    {
+      Write-Host "##vso[task.setvariable variable=DeployDacPac;]$true"  
+    }
+    else
+    {
+      Write-Host "##vso[task.setvariable variable=DeployDacPac;]$false"  
+    }
+  displayName: check if dacpac deployment is needed
+```
+
+Then use the condition on subsequent tasks:
+
+```yaml 
+ condition: and(succeeded(), eq(variables['DeployDacPac'], true))
+```
