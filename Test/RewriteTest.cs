@@ -22,11 +22,6 @@ namespace Test
 
             foreach (XmlNode node in nodes)
             {
-                if (node.Attributes == null)
-                {
-                    continue;
-                }
-
                 if (node.Attributes != null 
                     && node.Attributes.Count == 2
                     && node.Attributes[0].Name == "Name"

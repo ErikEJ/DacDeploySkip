@@ -100,5 +100,5 @@ You can also use the tool to set a condition in your pipeline based on whether a
 Then use the condition on subsequent tasks:
 
 ```yaml 
- condition: `and(succeeded(), eq(variables['DeployDacPac'], true))`
+ condition: and(succeeded(), eq(variables['DeployDacPac'], true))
 ```
