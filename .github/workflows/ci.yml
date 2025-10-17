@@ -40,6 +40,9 @@ jobs:
     - name: Build solution
       run: dotnet build --no-restore --configuration Release
 
+    - name: Run tests
+      run: dotnet test --no-build --configuration Release
+
     - name: NuGet login
       if: startsWith(github.ref, 'refs/heads/main')
       uses: NuGet/login@v1

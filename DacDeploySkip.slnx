@@ -4,4 +4,5 @@
     <File Path="readme.md" />
   </Folder>
   <Project Path="src/DacDeploySkip/DacDeploySkip.csproj" />
+  <Project Path="Test/Test.csproj" Id="d6fb32b7-81f6-4b7f-8c03-43288f941ef2" />
 </Solution>

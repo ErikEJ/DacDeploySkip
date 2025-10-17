@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DataSchemaModel FileFormatVersion="1.2" SchemaVersion="2.4" DspName="Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider" CollationLcid="1033" CollationCaseSensitive="False" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+	<Header>
+		<CustomData Category="Reference" Type="SqlSchema">
+			<Metadata Name="FileName" Value="C:/Users/ErikEjlskovJensen(De/.nuget/packages/microsoft.sqlserver.dacpacs.master/170.0.2/tools/master.dacpac" />
+			<Metadata Name="LogicalName" Value="master.dacpac" />
+			<Metadata Name="SuppressMissingDependenciesErrors" Value="False" />
+		</CustomData>
+    <CustomData Category="Reference" Type="SqlSchema">
+      <Metadata Name="FileName" Value="C:/Users/ErikEjlskovJensen(De/.nuget/packages/microsoft.sqlserver.dacpacs.master/170.0.2/tools/msdb.dacpac" />
+      <Metadata Name="LogicalName" Value="msbd.dacpac" />
+      <Metadata Name="SuppressMissingDependenciesErrors" Value="False" />
+    </CustomData>
+	</Header>
+	<Model>
+		<Element Type="SqlDatabaseOptions">
+			<Property Name="Collation" Value="SQL_Latin1_General_CP1_CI_AS" />
+			<Property Name="IsAnsiNullDefaultOn" Value="True" />
+			<Property Name="IsAnsiNullsOn" Value="True" />
+			<Property Name="IsAnsiWarningsOn" Value="True" />
+			<Property Name="IsArithAbortOn" Value="True" />
+			<Property Name="IsConcatNullYieldsNullOn" Value="True" />
+			<Property Name="IsTornPageProtectionOn" Value="False" />
+			<Property Name="IsFullTextEnabled" Value="True" />
+			<Property Name="PageVerifyMode" Value="3" />
+			<Property Name="CatalogCollation" Value="0" />
+		</Element>
+	</Model>
+</DataSchemaModel>
