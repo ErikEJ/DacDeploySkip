@@ -11,20 +11,14 @@ variables:
 
 steps:
 
-  - script: dotnet tool install -g Microsoft.SqlPackage
-    displayName: Install latest sqlpackage CLI
-
-  - script: dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
-    displayName: Install latest dacdeployskip CLI
-
-  - script: dotnet build --configuration $(buildConfiguration)
-    displayName: 'dotnet build $(buildConfiguration)'
-
   - powershell: |
+      dotnet tool install -g Microsoft.SqlPackage
+      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
+      dotnet build --configuration $(buildConfiguration)
       dacdeployskip check "$(dacpacPath)" "$(connectionString)"
       if (!$?)
       {
-         sqlpackage /Action:Publish /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)" /p:DropExtendedPropertiesNotInSource=False
+         sqlpackage /Action:Publish /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)"
          dacdeployskip mark "$(dacpacPath)" "$(connectionString)"
       }
     displayName: deploy dacpac if needed only
