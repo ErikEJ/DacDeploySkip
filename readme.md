@@ -1,6 +1,6 @@
 # Dac Deploy Skip
 
-Tool to determine if a deployment of a specific .dacpac file is required based on metadata present in the target database. 
+Tool to determine if a deployment of a specific .dacpac file is required based on metadata present in the target database.
 
 This can reduce your .dacpac deployment times significantly in scenarios you deploy the same .dacpac multiple times, e.g. in CI/CD pipelines.
 
@@ -26,25 +26,17 @@ This command will return 0 if the .dacpac has already been deployed, otherwise 1
 dacdeployskip mark "<path to .dacpac>" "SQL Server connection string"
 ```
 
+This command will add metadata to the target database to register the .dacpac as deployed.
+
 You can use the optional `-namekey` parameter to use the name of the .dacpac file instead of the full path as key.
 
 ```bash
 dacdeployskip mark "<path to .dacpac>" "SQL Server connection string" -namekey
 ```
 
-This command will add metadata to the target database to register the .dacpac as deployed.
-
 ### Sample usage in Azure DevOps pipeline
 
-Notice the use of the additional parameter `/p:DropExtendedPropertiesNotInSource=False` to avoid dropping the metadata added by this tool.
-
-If you use a publish profile, you can add the same parameter there.
-
-```xml
-<DropExtendedPropertiesNotInSource>False</DropExtendedPropertiesNotInSource>
-```
-
-```yml
+```yaml
 trigger:
 - main
 
@@ -58,27 +50,21 @@ variables:
 
 steps:
 
-  - script: dotnet tool install -g Microsoft.SqlPackage
-    displayName: Install latest sqlpackage CLI
-
-  - script: dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
-    displayName: Install latest dacdeployskip CLI
-
-  - script: dotnet build --configuration $(buildConfiguration)
-    displayName: 'dotnet build $(buildConfiguration)'
-
   - powershell: |
+      dotnet tool install -g Microsoft.SqlPackage
+      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
+      dotnet build $(buildConfiguration)
       dacdeployskip check "$(dacpacPath)" "$(connectionString)"
       if (!$?)
       {
-         sqlpackage /Action:Publish /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)" /p:DropExtendedPropertiesNotInSource=False
+         sqlpackage /Action:Publish /SourceFile:"$(dacpacPath)" /TargetConnectionString:"$(connectionString)"
          dacdeployskip mark "$(dacpacPath)" "$(connectionString)"
       }
     displayName: deploy dacpac if needed only
 
 ```
 
-You can find a complete example [here](/sample).
+You can find a [complete example here](/sample).
 
 You can also use the tool to set a condition in your pipeline based on whether a deployment is needed or not. This can be useful if you use a task like `SqlAzureDacpacDeployment` or `SqlDacpacDeploymentOnMachineGroup`.
 
@@ -99,6 +85,16 @@ You can also use the tool to set a condition in your pipeline based on whether a
 
 Then use the condition on subsequent tasks:
 
-```yaml 
+```yaml
  condition: and(succeeded(), eq(variables['DeployDacPac'], true))
+```
+
+### Using multiple deployments against the same database
+
+If you deploy multiple different .dacpac files against the same database, use the additional parameter `/p:DropExtendedPropertiesNotInSource=False` to avoid dropping the metadata added by this tool.
+
+If you use a publish profile, you can add the same parameter there.
+
+```xml
+<DropExtendedPropertiesNotInSource>False</DropExtendedPropertiesNotInSource>
 ```
