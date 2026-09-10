@@ -6,7 +6,7 @@ This can reduce your .dacpac deployment times significantly in scenarios you dep
 
 ## Getting started
 
-The tool runs on any system with the .NET 10 runtime installed.
+The tool runs on any system with .NET 10 or later installed.
 
 ### Installing the tool
 
