@@ -31,11 +31,14 @@ runs:
     - name: Validate command
       shell: pwsh
       run: |
-        if ("${{ inputs.command }}" -notin @("check", "mark"))
+        $normalizedCommand = "${{ inputs.command }}".ToLowerInvariant()
+        if ($normalizedCommand -notin @("check", "mark"))
         {
           Write-Error "Unsupported command '${{ inputs.command }}'. Valid commands are 'check' and 'mark'."
           exit 1
         }
+
+        Add-Content -Path $env:GITHUB_ENV -Value "DACDEPLOYSKIP_COMMAND=$normalizedCommand"
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
@@ -65,7 +68,7 @@ runs:
 
     - name: Check if dacpac is already deployed
       id: check
-      if: ${{ inputs.command == 'check' }}
+      if: ${{ env.DACDEPLOYSKIP_COMMAND == 'check' }}
       shell: pwsh
       run: |
         $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
@@ -93,7 +96,7 @@ runs:
         }
 
     - name: Mark dacpac as deployed
-      if: ${{ inputs.command == 'mark' }}
+      if: ${{ env.DACDEPLOYSKIP_COMMAND == 'mark' }}
       shell: pwsh
       run: |
         $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
