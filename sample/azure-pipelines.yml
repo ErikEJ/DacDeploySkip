@@ -13,7 +13,7 @@ steps:
 
   - powershell: |
       dotnet tool install -g Microsoft.SqlPackage
-      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
+      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip --framework net10.0
       dotnet build --configuration $(buildConfiguration)
       dacdeployskip check "$(dacpacPath)" "$(connectionString)"
       if (!$?)

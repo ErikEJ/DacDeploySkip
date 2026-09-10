@@ -6,12 +6,12 @@ This can reduce your .dacpac deployment times significantly in scenarios you dep
 
 ## Getting started
 
-The tool runs on any system with the .NET 8 or .NET 10 runtime installed. 
+The tool runs on any system with the .NET 8 or .NET 10 runtime installed. If your agent has the .NET 10 SDK installed, prefer the .NET 10 tool target for faster launch.
 
 ### Installing the tool
 
 ```bash
-dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
+dotnet tool install -g ErikEJ.DacFX.DacDeploySkip --framework net10.0
 ```
 
 ### Basic usage
@@ -52,7 +52,7 @@ steps:
 
   - powershell: |
       dotnet tool install -g Microsoft.SqlPackage
-      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
+      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip --framework net10.0
       dotnet build $(buildConfiguration)
       dacdeployskip check "$(dacpacPath)" "$(connectionString)"
       if (!$?)
