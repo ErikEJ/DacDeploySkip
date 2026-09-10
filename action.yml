@@ -22,7 +22,7 @@ inputs:
 
 outputs:
   deployed:
-    description: true when check finds the dacpac already deployed, otherwise false
+    description: For check, true when the dacpac is already deployed, otherwise false. Empty for mark.
     value: ${{ steps.check.outputs.deployed }}
 
 runs:
@@ -105,3 +105,4 @@ runs:
         }
 
         & $toolExecutable @arguments
+        exit $LASTEXITCODE
