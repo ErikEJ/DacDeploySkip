@@ -1,0 +1,69 @@
+name: DacDeploySkip
+description: Check whether a dacpac deployment is needed and optionally mark it as deployed
+
+inputs:
+  command:
+    description: Command to run (check or mark)
+    required: true
+  dacpac-path:
+    description: Path to the dacpac file
+    required: true
+  connection-string:
+    description: SQL Server connection string
+    required: true
+  use-name-key:
+    description: Use the dacpac file name instead of the full path as key
+    required: false
+    default: "false"
+
+outputs:
+  deployed:
+    description: true when check finds the dacpac already deployed, otherwise false
+    value: ${{ steps.check.outputs.deployed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Check if dacpac is already deployed
+      id: check
+      if: ${{ inputs.command == 'check' }}
+      shell: pwsh
+      run: |
+        $arguments = @("check", "${{ inputs.dacpac-path }}", "${{ inputs.connection-string }}")
+        if ("${{ inputs.use-name-key }}" -eq "true")
+        {
+          $arguments += "-namekey"
+        }
+
+        & dotnet run --project "${{ github.action_path }}/src/DacDeploySkip/DacDeploySkip.csproj" -- @arguments
+        $exitCode = $LASTEXITCODE
+
+        if ($exitCode -eq 0)
+        {
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "deployed=true"
+        }
+        elseif ($exitCode -eq 1)
+        {
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "deployed=false"
+        }
+        else
+        {
+          exit $exitCode
+        }
+
+    - name: Mark dacpac as deployed
+      if: ${{ inputs.command == 'mark' }}
+      shell: pwsh
+      run: |
+        $arguments = @("mark", "${{ inputs.dacpac-path }}", "${{ inputs.connection-string }}")
+        if ("${{ inputs.use-name-key }}" -eq "true")
+        {
+          $arguments += "-namekey"
+        }
+
+        & dotnet run --project "${{ github.action_path }}/src/DacDeploySkip/DacDeploySkip.csproj" -- @arguments

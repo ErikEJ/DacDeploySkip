@@ -34,6 +34,32 @@ You can use the optional `-namekey` parameter to use the name of the .dacpac fil
 dacdeployskip mark "<path to .dacpac>" "SQL Server connection string" -namekey
 ```
 
+### Simpler usage in GitHub Actions
+
+If you use GitHub Actions, you can call the repository action directly instead of installing the tool yourself:
+
+```yaml
+- name: Check if dacpac deployment is needed
+  id: dacdeployskip
+  uses: ErikEJ/DacDeploySkip@v1
+  with:
+    command: check
+    dacpac-path: ./Database/bin/Release/net8.0/Database.dacpac
+    connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
+
+- name: Deploy dacpac
+  if: steps.dacdeployskip.outputs.deployed != 'true'
+  run: sqlpackage /Action:Publish /SourceFile:"./Database/bin/Release/net8.0/Database.dacpac" /TargetConnectionString:"${{ secrets.SQL_CONNECTION_STRING }}"
+
+- name: Mark dacpac as deployed
+  if: steps.dacdeployskip.outputs.deployed != 'true'
+  uses: ErikEJ/DacDeploySkip@v1
+  with:
+    command: mark
+    dacpac-path: ./Database/bin/Release/net8.0/Database.dacpac
+    connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
+```
+
 ### Sample usage in Azure DevOps pipeline
 
 ```yaml
