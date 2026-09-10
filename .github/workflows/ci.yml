@@ -24,6 +24,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v7
 
+    - name: Show .NET SDK version
+      run: dotnet --version
+
     - name: Restore dependencies
       run: dotnet restore
   
