@@ -59,6 +59,10 @@ jobs:
           dacpac-path: ./Database/bin/Release/net8.0/Database.dacpac
           connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
 
+      - name: Install SqlPackage
+        if: steps.dacdeployskip.outputs.deployed != 'true'
+        run: dotnet tool install -g Microsoft.SqlPackage
+
       - name: Deploy dacpac
         if: steps.dacdeployskip.outputs.deployed != 'true'
         run: sqlpackage /Action:Publish /SourceFile:"./Database/bin/Release/net8.0/Database.dacpac" /TargetConnectionString:"${{ secrets.SQL_CONNECTION_STRING }}"

@@ -28,6 +28,15 @@ outputs:
 runs:
   using: composite
   steps:
+    - name: Validate command
+      shell: pwsh
+      run: |
+        if ("${{ inputs.command }}" -notin @("check", "mark"))
+        {
+          Write-Error "Unsupported command '${{ inputs.command }}'. Valid commands are 'check' and 'mark'."
+          exit 1
+        }
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v6
       with:
@@ -49,6 +58,10 @@ runs:
         }
 
         & dotnet @installArguments
+        if ($LASTEXITCODE -ne 0)
+        {
+          exit $LASTEXITCODE
+        }
 
     - name: Check if dacpac is already deployed
       id: check
