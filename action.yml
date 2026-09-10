@@ -11,6 +11,10 @@ inputs:
   connection-string:
     description: SQL Server connection string
     required: true
+  tool-version:
+    description: Optional NuGet package version to install
+    required: false
+    default: ""
   use-name-key:
     description: Use the dacpac file name instead of the full path as key
     required: false
@@ -29,18 +33,37 @@ runs:
       with:
         dotnet-version: 10.0.x
 
+    - name: Install DacDeploySkip tool
+      shell: pwsh
+      run: |
+        $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
+        if (Test-Path $toolPath)
+        {
+          Remove-Item -Path $toolPath -Recurse -Force
+        }
+
+        $installArguments = @("tool", "install", "ErikEJ.DacFX.DacDeploySkip", "--tool-path", $toolPath)
+        if (-not [string]::IsNullOrWhiteSpace("${{ inputs.tool-version }}"))
+        {
+          $installArguments += @("--version", "${{ inputs.tool-version }}")
+        }
+
+        & dotnet @installArguments
+
     - name: Check if dacpac is already deployed
       id: check
       if: ${{ inputs.command == 'check' }}
       shell: pwsh
       run: |
+        $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
+        $toolExecutable = if ($IsWindows) { Join-Path $toolPath "dacdeployskip.exe" } else { Join-Path $toolPath "dacdeployskip" }
         $arguments = @("check", "${{ inputs.dacpac-path }}", "${{ inputs.connection-string }}")
         if ("${{ inputs.use-name-key }}" -eq "true")
         {
           $arguments += "-namekey"
         }
 
-        & dotnet run --project "${{ github.action_path }}/src/DacDeploySkip/DacDeploySkip.csproj" -- @arguments
+        & $toolExecutable @arguments
         $exitCode = $LASTEXITCODE
 
         if ($exitCode -eq 0)
@@ -60,10 +83,12 @@ runs:
       if: ${{ inputs.command == 'mark' }}
       shell: pwsh
       run: |
+        $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
+        $toolExecutable = if ($IsWindows) { Join-Path $toolPath "dacdeployskip.exe" } else { Join-Path $toolPath "dacdeployskip" }
         $arguments = @("mark", "${{ inputs.dacpac-path }}", "${{ inputs.connection-string }}")
         if ("${{ inputs.use-name-key }}" -eq "true")
         {
           $arguments += "-namekey"
         }
 
-        & dotnet run --project "${{ github.action_path }}/src/DacDeploySkip/DacDeploySkip.csproj" -- @arguments
+        & $toolExecutable @arguments
