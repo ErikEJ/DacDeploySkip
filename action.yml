@@ -1,0 +1,111 @@
+name: DacDeploySkip
+description: Check whether a dacpac deployment is needed and optionally mark it as deployed
+
+inputs:
+  command:
+    description: Command to run (check or mark)
+    required: true
+  dacpac-path:
+    description: Path to the dacpac file
+    required: true
+  connection-string:
+    description: SQL Server connection string
+    required: true
+  tool-version:
+    description: Optional NuGet package version to install
+    required: false
+    default: ""
+  use-name-key:
+    description: Use the dacpac file name instead of the full path as key
+    required: false
+    default: "false"
+
+outputs:
+  deployed:
+    description: For check, true when the dacpac is already deployed, otherwise false. Empty for mark.
+    value: ${{ steps.check.outputs.deployed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate command
+      shell: pwsh
+      run: |
+        $normalizedCommand = "${{ inputs.command }}".ToLowerInvariant()
+        if ($normalizedCommand -notin @("check", "mark"))
+        {
+          Write-Error "Unsupported command '${{ inputs.command }}'. Valid commands are 'check' and 'mark'."
+          exit 1
+        }
+
+        Add-Content -Path $env:GITHUB_ENV -Value "DACDEPLOYSKIP_COMMAND=$normalizedCommand"
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Install DacDeploySkip tool
+      shell: pwsh
+      run: |
+        $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
+        if (Test-Path $toolPath)
+        {
+          Remove-Item -Path $toolPath -Recurse -Force
+        }
+
+        $installArguments = @("tool", "install", "ErikEJ.DacFX.DacDeploySkip", "--tool-path", $toolPath)
+        if (-not [string]::IsNullOrWhiteSpace("${{ inputs.tool-version }}"))
+        {
+          $installArguments += @("--version", "${{ inputs.tool-version }}")
+        }
+
+        & dotnet @installArguments
+        if ($LASTEXITCODE -ne 0)
+        {
+          exit $LASTEXITCODE
+        }
+
+    - name: Check if dacpac is already deployed
+      id: check
+      if: ${{ env.DACDEPLOYSKIP_COMMAND == 'check' }}
+      shell: pwsh
+      run: |
+        $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
+        $toolExecutable = if ($IsWindows) { Join-Path $toolPath "dacdeployskip.exe" } else { Join-Path $toolPath "dacdeployskip" }
+        $arguments = @("check", "${{ inputs.dacpac-path }}", "${{ inputs.connection-string }}")
+        if ("${{ inputs.use-name-key }}" -eq "true")
+        {
+          $arguments += "-namekey"
+        }
+
+        & $toolExecutable @arguments
+        $exitCode = $LASTEXITCODE
+
+        if ($exitCode -eq 0)
+        {
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "deployed=true"
+        }
+        elseif ($exitCode -eq 1)
+        {
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "deployed=false"
+        }
+        else
+        {
+          exit $exitCode
+        }
+
+    - name: Mark dacpac as deployed
+      if: ${{ env.DACDEPLOYSKIP_COMMAND == 'mark' }}
+      shell: pwsh
+      run: |
+        $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
+        $toolExecutable = if ($IsWindows) { Join-Path $toolPath "dacdeployskip.exe" } else { Join-Path $toolPath "dacdeployskip" }
+        $arguments = @("mark", "${{ inputs.dacpac-path }}", "${{ inputs.connection-string }}")
+        if ("${{ inputs.use-name-key }}" -eq "true")
+        {
+          $arguments += "-namekey"
+        }
+
+        & $toolExecutable @arguments
+        exit $LASTEXITCODE

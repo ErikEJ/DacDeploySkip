@@ -34,6 +34,50 @@ You can use the optional `-namekey` parameter to use the name of the .dacpac fil
 dacdeployskip mark "<path to .dacpac>" "SQL Server connection string" -namekey
 ```
 
+### Simpler usage in GitHub Actions
+
+If you use GitHub Actions, you can call the repository action directly instead of installing the tool yourself. Here is a complete minimal workflow:
+
+```yaml
+name: Deploy dacpac
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check if dacpac deployment is needed
+        id: dacdeployskip
+        uses: ErikEJ/DacDeploySkip@v1
+        with:
+          command: check
+          dacpac-path: ./Database/bin/Release/net8.0/Database.dacpac
+          connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
+
+      - name: Install SqlPackage
+        if: steps.dacdeployskip.outputs.deployed != 'true'
+        run: dotnet tool install -g Microsoft.SqlPackage
+
+      - name: Deploy dacpac
+        if: steps.dacdeployskip.outputs.deployed != 'true'
+        run: sqlpackage /Action:Publish /SourceFile:"./Database/bin/Release/net8.0/Database.dacpac" /TargetConnectionString:"${{ secrets.SQL_CONNECTION_STRING }}"
+
+      - name: Mark dacpac as deployed
+        if: steps.dacdeployskip.outputs.deployed != 'true'
+        uses: ErikEJ/DacDeploySkip@v1
+        with:
+          command: mark
+          dacpac-path: ./Database/bin/Release/net8.0/Database.dacpac
+          connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
+```
+
+You can optionally pass `tool-version` to pin the NuGet package version used by the action.
+
 ### Sample usage in Azure DevOps pipeline
 
 ```yaml
