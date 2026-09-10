@@ -6,17 +6,9 @@ This can reduce your .dacpac deployment times significantly in scenarios you dep
 
 ## Getting started
 
-The tool runs on any system with the .NET 8 or .NET 10 runtime installed.
+The tool runs on any system with the .NET 10 runtime installed.
 
 ### Installing the tool
-
-If your agent already has the .NET 10 SDK installed, prefer the .NET 10 tool target for faster launch:
-
-```bash
-dotnet tool install -g ErikEJ.DacFX.DacDeploySkip --framework net10.0
-```
-
-Otherwise, use the generic install command:
 
 ```bash
 dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
