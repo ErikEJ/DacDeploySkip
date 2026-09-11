@@ -1,4 +1,7 @@
-using System.Xml.Linq;
+using Microsoft.SqlServer.Dac;
+using System.Collections;
+using System.Globalization;
+using System.Reflection;
 
 namespace DacDeploySkip;
 
@@ -6,32 +9,43 @@ internal static class DeploymentOptionsSerializer
 {
     private static readonly HashSet<string> ExcludedProperties = new(StringComparer.Ordinal)
     {
-        "TargetConnectionString",
-        "TargetDatabaseName"
+        "CreateNewDatabase",
+        "DataOperationStateProvider",
+        "EnableFastComparison",
+        "LogDeployment"
     };
 
     internal static string Serialize(string publishProfilePath)
     {
-        var document = XDocument.Load(publishProfilePath);
+        var deploymentOptions = DacProfile.Load(publishProfilePath).DeployOptions;
         var options = new SortedDictionary<string, string>(StringComparer.Ordinal);
 
-        foreach (var property in document
-            .Descendants()
-            .Where(element => element.Parent?.Name.LocalName == "PropertyGroup"
-                && !ExcludedProperties.Contains(element.Name.LocalName)))
+        foreach (var property in deploymentOptions
+            .GetType()
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(property => property.CanRead
+                && property.PropertyType != typeof(string)
+                && !ExcludedProperties.Contains(property.Name)))
         {
-            options[property.Name.LocalName] = property.Value;
-        }
-
-        foreach (var variable in document
-            .Descendants()
-            .Where(element => element.Name.LocalName == "SqlCmdVariable"))
-        {
-            var name = variable.Attribute("Include")?.Value;
-            var value = variable.Elements().FirstOrDefault(element => element.Name.LocalName == "Value")?.Value;
-            if (!string.IsNullOrEmpty(name) && value != null)
+            var value = property.GetValue(deploymentOptions);
+            if (value is IDictionary dictionary)
             {
-                options[$"SqlCmdVariable:{name}"] = value;
+                foreach (DictionaryEntry item in dictionary)
+                {
+                    options[$"{property.Name}:{item.Key}"] = Convert.ToString(item.Value, CultureInfo.InvariantCulture) ?? string.Empty;
+                }
+            }
+            else if (value is IEnumerable values)
+            {
+                options[property.Name] = string.Join(
+                    ",",
+                    values.Cast<object>()
+                        .Select(value => Convert.ToString(value, CultureInfo.InvariantCulture))
+                        .Order(StringComparer.Ordinal));
+            }
+            else if (value != null && (property.PropertyType.IsValueType || property.PropertyType.IsEnum))
+            {
+                options[property.Name] = Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty;
             }
         }
 

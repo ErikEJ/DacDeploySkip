@@ -5,7 +5,7 @@ namespace Test;
 public class DeploymentOptionsTest
 {
     [Fact]
-    public async Task ChecksumIncludesDeploymentOptionsInStableOrder()
+    public async Task ChecksumUsesResolvedDefaultsAndIgnoresTargetDatabase()
     {
         var dacpacPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.dacpac");
         var firstProfilePath = Path.GetTempFileName();
@@ -21,7 +21,7 @@ public class DeploymentOptionsTest
             }
 
             await File.WriteAllTextAsync(firstProfilePath, """
-                <Project>
+                <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
                   <PropertyGroup>
                     <DropObjectsNotInSource>False</DropObjectsNotInSource>
                     <BlockOnPossibleDataLoss>True</BlockOnPossibleDataLoss>
@@ -30,10 +30,9 @@ public class DeploymentOptionsTest
                 </Project>
                 """);
             await File.WriteAllTextAsync(secondProfilePath, """
-                <Project>
+                <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
                   <PropertyGroup>
                     <TargetDatabaseName>SecondDatabase</TargetDatabaseName>
-                    <BlockOnPossibleDataLoss>True</BlockOnPossibleDataLoss>
                     <DropObjectsNotInSource>False</DropObjectsNotInSource>
                   </PropertyGroup>
                 </Project>
@@ -71,9 +70,9 @@ public class DeploymentOptionsTest
             }
 
             await File.WriteAllTextAsync(firstProfilePath,
-                "<Project><PropertyGroup><BlockOnPossibleDataLoss>True</BlockOnPossibleDataLoss></PropertyGroup></Project>");
+                "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\"><PropertyGroup><BlockOnPossibleDataLoss>True</BlockOnPossibleDataLoss></PropertyGroup></Project>");
             await File.WriteAllTextAsync(secondProfilePath,
-                "<Project><PropertyGroup><BlockOnPossibleDataLoss>False</BlockOnPossibleDataLoss></PropertyGroup></Project>");
+                "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\"><PropertyGroup><BlockOnPossibleDataLoss>False</BlockOnPossibleDataLoss></PropertyGroup></Project>");
 
             var service = new DacDeploySkip.DacpacChecksumService();
 

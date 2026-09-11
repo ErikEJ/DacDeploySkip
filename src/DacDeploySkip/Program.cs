@@ -4,14 +4,14 @@ var skipper = new DacpacChecksumService();
 
 if (args.Length >= 3 && args[0] == "check" && TryParseOptions(args, out var useFileName, out var publishProfilePath))
 {
-    var deployed = await skipper.CheckIfDeployedAsync(args[1], args[2], useFileName, publishProfilePath);
+    var deployed = await skipper.CheckIfDeployedAsync(args[1], args[2], useFileName, publishProfilePath: publishProfilePath);
 
     return deployed ? 0 : 1;
 }
 
 if (args.Length >= 3 && args[0] == "mark" && TryParseOptions(args, out useFileName, out publishProfilePath))
 {
-    await skipper.SetChecksumAsync(args[1], args[2], useFileName, publishProfilePath);
+    await skipper.SetChecksumAsync(args[1], args[2], useFileName, publishProfilePath: publishProfilePath);
     return 0;
 }
 

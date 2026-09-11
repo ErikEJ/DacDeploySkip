@@ -74,6 +74,8 @@ runs:
       id: check
       if: ${{ env.DACDEPLOYSKIP_COMMAND == 'check' }}
       shell: pwsh
+      env:
+        DACDEPLOYSKIP_PUBLISH_PROFILE: ${{ inputs.publish-profile }}
       run: |
         $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
         $toolExecutable = if ($IsWindows) { Join-Path $toolPath "dacdeployskip.exe" } else { Join-Path $toolPath "dacdeployskip" }
@@ -82,9 +84,9 @@ runs:
         {
           $arguments += "-namekey"
         }
-        if (-not [string]::IsNullOrWhiteSpace("${{ inputs.publish-profile }}"))
+        if (-not [string]::IsNullOrWhiteSpace($env:DACDEPLOYSKIP_PUBLISH_PROFILE))
         {
-          $arguments += @("-profile", "${{ inputs.publish-profile }}")
+          $arguments += @("-profile", $env:DACDEPLOYSKIP_PUBLISH_PROFILE)
         }
 
         & $toolExecutable @arguments
@@ -106,6 +108,8 @@ runs:
     - name: Mark dacpac as deployed
       if: ${{ env.DACDEPLOYSKIP_COMMAND == 'mark' }}
       shell: pwsh
+      env:
+        DACDEPLOYSKIP_PUBLISH_PROFILE: ${{ inputs.publish-profile }}
       run: |
         $toolPath = Join-Path $env:RUNNER_TEMP "dacdeployskip"
         $toolExecutable = if ($IsWindows) { Join-Path $toolPath "dacdeployskip.exe" } else { Join-Path $toolPath "dacdeployskip" }
@@ -114,9 +118,9 @@ runs:
         {
           $arguments += "-namekey"
         }
-        if (-not [string]::IsNullOrWhiteSpace("${{ inputs.publish-profile }}"))
+        if (-not [string]::IsNullOrWhiteSpace($env:DACDEPLOYSKIP_PUBLISH_PROFILE))
         {
-          $arguments += @("-profile", "${{ inputs.publish-profile }}")
+          $arguments += @("-profile", $env:DACDEPLOYSKIP_PUBLISH_PROFILE)
         }
 
         & $toolExecutable @arguments
