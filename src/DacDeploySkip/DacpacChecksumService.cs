@@ -9,7 +9,7 @@ namespace DacDeploySkip;
 /// </summary>
 public class DacpacChecksumService
 {
-    public async Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, bool useFileName, CancellationToken cancellationToken = default)
+    public async Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, bool useFileName, string? publishProfilePath, CancellationToken cancellationToken = default)
     {
         var targetDatabaseName = GetDatabaseName(targetConnectionString);
         
@@ -28,7 +28,7 @@ public class DacpacChecksumService
 
             var dacpacId = GetStringChecksum(dacpacPath, useFileName);
 
-            var dacpacChecksum = await GetChecksumAsync(dacpacPath);
+            var dacpacChecksum = await GetChecksumAsync(dacpacPath, publishProfilePath);
 
             var deployed = await CheckExtendedPropertyAsync(connection, dacpacId, dacpacChecksum, cancellationToken);
 
@@ -43,13 +43,13 @@ public class DacpacChecksumService
         }
     }
 
-    public async Task SetChecksumAsync(string dacpacPath, string targetConnectionString,  bool useFileName, CancellationToken cancellationToken = default)
+    public async Task SetChecksumAsync(string dacpacPath, string targetConnectionString, bool useFileName, string? publishProfilePath, CancellationToken cancellationToken = default)
     {
         var targetDatabaseName = GetDatabaseName(targetConnectionString);
 
         var dacpacId = GetStringChecksum(dacpacPath, useFileName);
 
-        var dacpacChecksum = await GetChecksumAsync(dacpacPath);
+        var dacpacChecksum = await GetChecksumAsync(dacpacPath, publishProfilePath);
         
         using (var connection = new SqlConnection(targetConnectionString))
         {
@@ -67,8 +67,11 @@ public class DacpacChecksumService
         return builder.InitialCatalog;
     }
 
-    private async Task<string> GetChecksumAsync(string file)
+    internal async Task<string> GetChecksumAsync(string file, string? publishProfilePath = null)
     {
+        var deploymentOptions = string.IsNullOrWhiteSpace(publishProfilePath)
+            ? null
+            : DeploymentOptionsSerializer.Serialize(publishProfilePath);
         var output = Path.Join(Path.GetTempPath(), Path.GetRandomFileName());
 
         System.IO.Compression.ZipFile.ExtractToDirectory(file, output);
@@ -94,6 +97,11 @@ public class DacpacChecksumService
         {
             var postdeployBytes = await File.ReadAllBytesAsync(postdeployPath);
             bytes = bytes.Concat(postdeployBytes).ToArray();
+        }
+
+        if (deploymentOptions != null)
+        {
+            bytes = bytes.Concat(System.Text.Encoding.UTF8.GetBytes($"\nDeploymentOptions\n{deploymentOptions}")).ToArray();
         }
 
         using var sha = SHA256.Create();
