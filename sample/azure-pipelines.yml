@@ -7,7 +7,7 @@ pool:
 variables:
   buildConfiguration: 'Release'
   connectionString: 'Data Source=(localdb)\mssqllocaldb;Initial Catalog=TestBed;Integrated Security=true;Encrypt=false'
-  dacpacPath: '$(Build.SourcesDirectory)\Database\bin\Release\net8.0\Database.dacpac'
+  dacpacPath: '$(Build.SourcesDirectory)\Database\bin\Release\net10.0\Database.dacpac'
 
 steps:
 

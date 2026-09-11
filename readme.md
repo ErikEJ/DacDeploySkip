@@ -56,7 +56,7 @@ jobs:
         uses: ErikEJ/DacDeploySkip@v1
         with:
           command: check
-          dacpac-path: ./Database/bin/Release/net8.0/Database.dacpac
+          dacpac-path: ./Database/bin/Release/net10.0/Database.dacpac
           connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
 
       - name: Install SqlPackage
@@ -65,14 +65,14 @@ jobs:
 
       - name: Deploy dacpac
         if: steps.dacdeployskip.outputs.deployed != 'true'
-        run: sqlpackage /Action:Publish /SourceFile:"./Database/bin/Release/net8.0/Database.dacpac" /TargetConnectionString:"${{ secrets.SQL_CONNECTION_STRING }}"
+        run: sqlpackage /Action:Publish /SourceFile:"./Database/bin/Release/net10.0/Database.dacpac" /TargetConnectionString:"${{ secrets.SQL_CONNECTION_STRING }}"
 
       - name: Mark dacpac as deployed
         if: steps.dacdeployskip.outputs.deployed != 'true'
         uses: ErikEJ/DacDeploySkip@v1
         with:
           command: mark
-          dacpac-path: ./Database/bin/Release/net8.0/Database.dacpac
+          dacpac-path: ./Database/bin/Release/net10.0/Database.dacpac
           connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
 ```
 
@@ -90,14 +90,13 @@ pool:
 variables:
   buildConfiguration: 'Release'
   connectionString: 'Data Source=(localdb)\mssqllocaldb;Initial Catalog=TestBed;Integrated Security=true;Encrypt=false'
-  dacpacPath: '$(Build.SourcesDirectory)\Database\bin\Release\net8.0\Database.dacpac'
+  dacpacPath: '$(Build.SourcesDirectory)\Database\bin\Release\net10.0\Database.dacpac'
 
 steps:
 
   - powershell: |
       dotnet tool install -g Microsoft.SqlPackage
-      # Use the .NET 10 target when the agent already has the .NET 10 SDK installed.
-      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip --framework net10.0
+      dotnet tool install -g ErikEJ.DacFX.DacDeploySkip
       dotnet build $(buildConfiguration)
       dacdeployskip check "$(dacpacPath)" "$(connectionString)"
       if (!$?)
