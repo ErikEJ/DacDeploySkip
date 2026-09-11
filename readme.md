@@ -34,6 +34,14 @@ You can use the optional `-namekey` parameter to use the name of the .dacpac fil
 dacdeployskip mark "<path to .dacpac>" "SQL Server connection string" -namekey
 ```
 
+Use `-profile` with both `check` and `mark` to include the deployment options and SQLCMD variables from the DacFX publish profile in the checksum:
+
+```bash
+dacdeployskip check "<path to .dacpac>" "SQL Server connection string" -profile "<path to .publish.xml>"
+```
+
+Pass the same publish profile to SqlPackage so the checksum represents the active deployment options. Target database and connection string values are excluded from the checksum.
+
 ### Simpler usage in GitHub Actions
 
 If you use GitHub Actions, you can call the repository action directly instead of installing the tool yourself. Here is a complete minimal workflow:
@@ -76,7 +84,7 @@ jobs:
           connection-string: ${{ secrets.SQL_CONNECTION_STRING }}
 ```
 
-You can optionally pass `tool-version` to pin the NuGet package version used by the action.
+You can optionally pass `tool-version` to pin the NuGet package version used by the action and `publish-profile` to include the deployment options in the checksum.
 
 ### Sample usage in Azure DevOps pipeline
 

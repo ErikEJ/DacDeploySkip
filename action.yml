@@ -19,6 +19,10 @@ inputs:
     description: Use the dacpac file name instead of the full path as key
     required: false
     default: "false"
+  publish-profile:
+    description: Optional path to the DacFX publish profile used for deployment
+    required: false
+    default: ""
 
 outputs:
   deployed:
@@ -78,6 +82,10 @@ runs:
         {
           $arguments += "-namekey"
         }
+        if (-not [string]::IsNullOrWhiteSpace("${{ inputs.publish-profile }}"))
+        {
+          $arguments += @("-profile", "${{ inputs.publish-profile }}")
+        }
 
         & $toolExecutable @arguments
         $exitCode = $LASTEXITCODE
@@ -105,6 +113,10 @@ runs:
         if ("${{ inputs.use-name-key }}" -eq "true")
         {
           $arguments += "-namekey"
+        }
+        if (-not [string]::IsNullOrWhiteSpace("${{ inputs.publish-profile }}"))
+        {
+          $arguments += @("-profile", "${{ inputs.publish-profile }}")
         }
 
         & $toolExecutable @arguments
