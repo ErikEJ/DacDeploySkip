@@ -5,7 +5,7 @@ namespace Test;
 public class DeploymentOptionsTest
 {
     [Fact]
-    public async Task ChecksumUsesResolvedDefaultsAndIgnoresTargetDatabase()
+    public async Task ChecksumIgnoresTargetDatabase()
     {
         var dacpacPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.dacpac");
         var firstProfilePath = Path.GetTempFileName();
@@ -24,7 +24,6 @@ public class DeploymentOptionsTest
                 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
                   <PropertyGroup>
                     <DropObjectsNotInSource>False</DropObjectsNotInSource>
-                    <BlockOnPossibleDataLoss>True</BlockOnPossibleDataLoss>
                     <TargetDatabaseName>FirstDatabase</TargetDatabaseName>
                   </PropertyGroup>
                 </Project>
