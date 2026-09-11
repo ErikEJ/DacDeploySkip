@@ -5,7 +5,7 @@ namespace Test;
 public class DeploymentOptionsTest
 {
     [Fact]
-    public async Task ChecksumIgnoresTargetDatabase()
+    public async Task ChecksumIgnoresTargetDatabaseAndNonDeploymentProperties()
     {
         var dacpacPath = Path.Combine(Path.GetTempPath(), $"{Path.GetRandomFileName()}.dacpac");
         var firstProfilePath = Path.GetTempFileName();
@@ -23,6 +23,7 @@ public class DeploymentOptionsTest
             await File.WriteAllTextAsync(firstProfilePath, """
                 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
                   <PropertyGroup>
+                    <Name>First profile</Name>
                     <DropObjectsNotInSource>False</DropObjectsNotInSource>
                     <TargetDatabaseName>FirstDatabase</TargetDatabaseName>
                   </PropertyGroup>
@@ -71,7 +72,7 @@ public class DeploymentOptionsTest
             await File.WriteAllTextAsync(firstProfilePath,
                 "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\"><PropertyGroup><BlockOnPossibleDataLoss>True</BlockOnPossibleDataLoss></PropertyGroup></Project>");
             await File.WriteAllTextAsync(secondProfilePath,
-                "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\"><PropertyGroup><BlockOnPossibleDataLoss>False</BlockOnPossibleDataLoss></PropertyGroup></Project>");
+                "<Project xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\"><PropertyGroup /></Project>");
 
             var service = new DacDeploySkip.DacpacChecksumService();
 
