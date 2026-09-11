@@ -146,7 +146,9 @@ internal static class DeploymentOptionsSerializer
             .Where(element => element.Name.LocalName == "SqlCmdVariable"))
         {
             var name = variable.Attribute("Include")?.Value;
-            var value = variable.Elements().FirstOrDefault(element => element.Name.LocalName == "Value")?.Value;
+            var value = variable.Elements()
+                .FirstOrDefault(element => element.Name.LocalName is "Value" or "DefaultValue")
+                ?.Value;
             if (!string.IsNullOrEmpty(name) && value != null)
             {
                 options[$"SqlCmdVariable:{name}"] = value;
