@@ -9,9 +9,6 @@ namespace DacDeploySkip;
 /// </summary>
 public class DacpacChecksumService
 {
-    public Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, bool useFileName, CancellationToken cancellationToken = default)
-        => CheckIfDeployedAsync(dacpacPath, targetConnectionString, useFileName, null, cancellationToken);
-
     public async Task<bool> CheckIfDeployedAsync(string dacpacPath, string targetConnectionString, bool useFileName, string? publishProfilePath, CancellationToken cancellationToken = default)
     {
         var targetDatabaseName = GetDatabaseName(targetConnectionString);
@@ -45,9 +42,6 @@ public class DacpacChecksumService
             return false;
         }
     }
-
-    public Task SetChecksumAsync(string dacpacPath, string targetConnectionString, bool useFileName, CancellationToken cancellationToken = default)
-        => SetChecksumAsync(dacpacPath, targetConnectionString, useFileName, null, cancellationToken);
 
     public async Task SetChecksumAsync(string dacpacPath, string targetConnectionString, bool useFileName, string? publishProfilePath, CancellationToken cancellationToken = default)
     {
