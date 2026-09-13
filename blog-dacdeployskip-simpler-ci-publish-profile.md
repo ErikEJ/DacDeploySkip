@@ -2,13 +2,7 @@
 layout: post
 title: "DacDeploySkip update: simpler CI and publish profile support"
 date: 2026-09-12 10:45:00 +0000
-tags:
-  - sql server
-  - dacpac
-  - devops
-  - github actions
-  - dotnet
-excerpt: "DacDeploySkip now has simpler CI usage and publish profile-aware checksums, helping you skip unnecessary dacpac deployments more reliably."
+categories: dotnet dacfx sqlserver sqlpackage
 ---
 
 If you deploy `.dacpac` files frequently, you know how much time is wasted when nothing has actually changed.
