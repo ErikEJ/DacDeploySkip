@@ -17,9 +17,9 @@
     <PackageId>ErikEJ.DacFX.DacDeploySkip</PackageId>
     <Description>Dacpac deployment skipper</Description>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
-    <PackageVersion>1.0.9</PackageVersion>
-    <InformationalVersion>1.0.9</InformationalVersion>
-    <Version>1.0.9</Version>
+    <PackageVersion>1.0.10</PackageVersion>
+    <InformationalVersion>1.0.10</InformationalVersion>
+    <Version>1.0.10</Version>
     <RepositoryUrl>https://github.com/ErikEJ/DacDeploySkip</RepositoryUrl>
     <PackageProjectUrl>https://github.com/ErikEJ/DacDeploySkip</PackageProjectUrl>
     <Authors>ErikEJ</Authors>
@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.3" />
+    <PackageReference Include="Microsoft.Data.SqlClient.Extensions.Azure" Version="7.0.3" />
   </ItemGroup>
 
 </Project>
