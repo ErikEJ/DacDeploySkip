@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.3" />
+    <PackageReference Include="Microsoft.Data.SqlClient.Extensions.Azure" Version="7.0.3" />
   </ItemGroup>
 
 </Project>
